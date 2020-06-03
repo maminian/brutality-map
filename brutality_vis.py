@@ -67,6 +67,8 @@ keepers = np.zeros(county_names.shape, dtype=bool)
 #keepers = np.ones(county_names.shape, dtype=bool)
 highlights = np.array(['#aaaaaa' for _ in county_names])
 
+descriptions=[[] for _ in county_names]
+
 instance_count = np.zeros(county_names.shape)
 instance_list = [[] for _ in instance_count]
 for (location, df_sub) in grouper:
@@ -77,11 +79,12 @@ for (location, df_sub) in grouper:
     j = cs2idx[location]
     keepers[j] = True
     highlights[j] = '#000000'
-    instance_list[j] = list(df_sub['Tweet URL'].values)
+    instance_list[j] = list( df_sub['Tweet URL'].values )
     instance_count[j] = df_sub.shape[0]
+    descriptions[j] = list( df_sub['Description'].values )
 #
 instance_list = np.array(instance_list)
-
+descriptions = np.array(descriptions) # why do i go from array to list to array to list...
 #
 
 color_mapper = LinearColorMapper(palette=palette, low=0, high=4)
@@ -92,7 +95,8 @@ data=dict(
     name=list(citystate_str[keepers]),
     count=list(instance_count[keepers]),
     media=list(instance_list[keepers]),
-    has_hits=list(highlights[keepers])
+    has_hits=list(highlights[keepers]),
+    descriptions=list(descriptions[keepers])
 )
 
 #TOOLS = "wheel_zoom,reset,hover"
@@ -106,10 +110,11 @@ p = figure(
     title="Instances of police brutality during George Floyd protests", tools=[highlighty,'tap'],
     x_axis_location=None, y_axis_location=None,
     tooltips=[
-       ("Name", "@name"), ("Count", "@count"), ("Links", "@media")
+       ("Name", "@name"), ("Count", "@count")
     ],
     plot_width=1000,
     plot_height=600,
+    toolbar_location='below'
 )
 #
 # polysel = bokeh.models.PolySelectTool(
@@ -158,29 +163,62 @@ cds = bokeh.models.ColumnDataSource({
     'ys': list( county_ys[np.logical_not(keepers)] )
 })
 
-# def mooo(attr,old,new):
-#     index=brutality_cds.selected.indices
-#     print(index)
-# #
+# Now want to mimick
+# https://docs.bokeh.org/en/latest/docs/user_guide/interaction/callbacks.html#customjs-for-user-interaction-events
+div = bokeh.models.Div(width=400, height=p.plot_height, height_policy="fixed")
 
-mooo = CustomJS(args=dict(dat=brutality_cds), code='''
-var idx=dat.selected.indices[0];
-var name=dat["data"]["name"][idx];
-var links=dat["data"]["media"][idx];
-var nlinks=links.length;
+mooo = CustomJS(args=dict(dat=brutality_cds, page=div), code='''
+var idx = dat.selected.indices[0];
+var name = dat["data"]["name"][idx];
+var links = dat["data"]["media"][idx];
+var descrs = dat["data"]["descriptions"][idx];
+var nlinks = links.length;
+console.log(links)
 
-console.log(idx);
-console.log(name);
-console.log(links);
-console.log(nlinks);
+var header="<h1 class=\'city\'>Videos for "+name+"</h1>";
 
-console.log("Selected city: " + name);
+var myul="<ul class=\'media_list\'>";
 for (var i=0; i<nlinks; i++){
     var linky=links[i];
-    console.log( linky );
+    myul += "<li><font class=\'brutality_descr\'>" + descrs[i] + "</font><br/>";
+    myul += "<a href=\'"+linky+"\' target=_blank>" + linky + "</a>\\n";
 }
+myul += "</ul>\\n"
+
+page.text = header+myul;
+console.log(page.text)
 '''
 )
+
+layout=bokeh.layouts.row(p,div)
+
+# var myul="<ul class=\"media_list\">";
+# for (var i=0; i<nlinks; i++){
+#     var linky=links[i];
+#     myul += "<li> <a href=\""+linky+"\">" + linky + "</a>\\n";
+# }
+# myul += "</ul>\\n"
+#
+# div.text = header+myul;
+
+# mooo = CustomJS(args=dict(dat=brutality_cds), code='''
+# var idx=dat.selected.indices[0];
+# var name=dat["data"]["name"][idx];
+# var links=dat["data"]["media"][idx];
+# var nlinks=links.length;
+#
+# console.log(idx);
+# console.log(name);
+# console.log(links);
+# console.log(nlinks);
+#
+# console.log("Selected city: " + name);
+# for (var i=0; i<nlinks; i++){
+#     var linky=links[i];
+#     console.log( linky );
+# }
+# '''
+# )
 
 # console.log("Selected city: " + dat[idx]['Name'] + "\n")
 # console.log('Links to media:')
@@ -199,4 +237,4 @@ empty_county_ml = bokeh.models.MultiLine(xs='xs', ys='ys', line_color='#aaaaaa',
 
 p.add_glyph(cds,empty_county_ml)
 
-bokeh.io.show(p)
+bokeh.io.show(layout)
