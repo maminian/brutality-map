@@ -9,7 +9,22 @@ from bokeh.models.callbacks import CustomJS
 
 import numpy as np
 
-bokeh.plotting.output_file('brutality.html', title='Police Brutality Map')
+
+####
+# resource links
+tweet_number_one = 'https://twitter.com/greg_doucette/status/1266752393556918273'
+spreadsheet_link = 'https://docs.google.com/spreadsheets/d/1YmZeSxpz52qT-10tkCjWOwOGkQqle7Wd1P7ZM1wMW0E/edit#gid=0'
+
+####
+# timestamp
+import datetime
+import pytz
+dt = pytz.datetime.datetime.now( pytz.timezone('US/Mountain') )
+dt_str = dt.strftime('%H:%M %Z, %B %d, %Y')
+
+####
+# file to export
+bokeh.plotting.output_file('index.html', title='Police Brutality Map')
 
 ###
 import load_data
@@ -139,17 +154,24 @@ p.add_layout(color_bar, 'below')
 # and generate a block of HTML that will dynamically update
 # based on the thing clicked.
 #
-div = bokeh.models.Div(width=int(0.8*p.plot_width), width_policy="fixed")
 
-mooo = CustomJS(args=dict(dat=brutality_cds, page=div), code='''
+master_header='''
+<div class='timestamp'>Last updated: %s </div><br/>
+Original Twitter thread: <a href='%s'>%s</a><br/>
+Compiled data powering this widget: <a href='%s'>%s</a>
+'''%(dt_str,tweet_number_one,tweet_number_one,spreadsheet_link,spreadsheet_link)
+
+div = bokeh.models.Div(width=int(0.85*p.plot_width), width_policy="fixed", text=master_header)
+
+
+mooo = CustomJS(args=dict(dat=brutality_cds, page=div, header=master_header), code='''
 var idx = dat.selected.indices[0];
 var name = dat["data"]["name"][idx];
 var links = dat["data"]["media"][idx];
 var descrs = dat["data"]["descriptions"][idx];
 var nlinks = links.length;
-console.log(links)
 
-var header="<h1 class=\'city\'>Audio/video for <font class=\'location\'>"+name+"</font> ("+ nlinks +" total)</h1>";
+var links_header="<h1 class=\'city\'>Audio/video for <font class=\'location\'>"+name+"</font> ("+ nlinks +" total)</h1>";
 
 var myul="<ol class=\'media_list\'>";
 for (var i=0; i<nlinks; i++){
@@ -159,8 +181,7 @@ for (var i=0; i<nlinks; i++){
 }
 myul += "</ol>\\n"
 
-page.text = header+myul;
-console.log(page.text)
+page.text = header+links_header+myul;
 '''
 )
 

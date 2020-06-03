@@ -8,6 +8,7 @@ h1.city{
   color : #000;
   font-size: 24px;
   text-decoration: underline;
+  padding-bottom: 4px;
 }
 
 ol{
@@ -15,5 +16,12 @@ ol{
 }
 
 li{
-  padding: 7px;
+  padding-bottom: 7px;
+}
+
+div.timestamp{
+  font-size: 11px;
+  color: #111;
+  /*text-align: center;*/
+  padding-bottom: 8px;
 }

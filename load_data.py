@@ -5,7 +5,8 @@ import os
 from mpl_toolkits.basemap import Basemap
 
 # clean tab-separated data of noted police issues on twitter
-df_cases = pandas.read_csv('cases-2june2020.tsv', delimiter='\t', usecols=range(1,7))
+#df_cases = pandas.read_csv('cases-2june2020.tsv', delimiter='\t', usecols=range(1,7))
+df_cases = pandas.read_csv('videos_spreadsheet.tsv', delimiter='\t', usecols=range(6), skiprows=4)
 
 #######
 # clean up some of the cases.....
