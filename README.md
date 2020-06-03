@@ -34,3 +34,9 @@ accessed 23 April 2020 (well technically the 24th...)
 
 association of city to county (or counties...)
 https://www.census.gov/geographies/reference-files/time-series/geo/name-lookup-tables.2010.html
+
+====================
+
+shape files for US entities...
+
+https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html

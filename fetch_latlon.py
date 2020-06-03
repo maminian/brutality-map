@@ -30,27 +30,35 @@ def fetch(entries, verbosity=1):
     latlons = np.zeros((len(entries), 2), dtype=float)
     for j,query in enumerate(entries):
 #        query = ', '.join(cs)
+        print('fetching %s...'%query)
         try:
             results = geocoder.geocode(query)
         except:
             results=[]
         #
+        ri = 0
+        hit = results[ri]
+        while hit['components']['country'].lower() not in ['united states of america', 'usa', 'us']:
+            ri+=1
+            hit=results[ri]
+        #
         if len(results)==0:
             print("Warning: failed to find data for entry %s, using NaN coordinates."%query)
             latlon = np.array([np.nan,np.nan])
         else:
-            ne = results[0]['bounds']['northeast']
-            sw = results[0]['bounds']['southwest']
-            latlon = np.mean([[ne['lat'], ne['lng']],[sw['lat'],sw['lng']]], axis=0)
+#            ne = hit['bounds']['northeast']
+#            sw = hit['bounds']['southwest']
+#            latlon = np.mean([[ne['lat'], ne['lng']],[sw['lat'],sw['lng']]], axis=0)
+            latlon = np.array([hit['geometry']['lat'], hit['geometry']['lng']])
         #
         latlons[j] = latlon
         if verbosity>0:
-            print(query, latlon)
+            print('done, ', query, latlon)
     #
     return latlons
 #
 
-def create_lookup(entries,fname='city_latlon.tsv', verbosity=1):
+def create_lookup(entries,fname='latlon_lookup.tsv', verbosity=1):
     '''
     Calls fetch() in the same module, and
     saves the result in a simple tab-separated file for future use.
@@ -78,7 +86,7 @@ def create_lookup(entries,fname='city_latlon.tsv', verbosity=1):
     latlon_data = np.hstack([citystates, results])
 
     df = pandas.DataFrame(data=latlon_data, columns=['city','state', 'lat', 'lon'])
-    df.to_csv('latlon_lookup.tsv', sep='\t', index=None)
+    df.to_csv(fname, sep='\t', index=None)
     return
 #
 
