@@ -29,3 +29,8 @@ US State codes (FIPS Codes) via:
 https://www2.census.gov/programs-surveys/popest/geographies/2016/state-geocodes-v2016.xls
 
 accessed 23 April 2020 (well technically the 24th...)
+
+===================
+
+association of city to county (or counties...)
+https://www.census.gov/geographies/reference-files/time-series/geo/name-lookup-tables.2010.html
