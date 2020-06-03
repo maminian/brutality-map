@@ -90,14 +90,14 @@ highlighty = bokeh.models.HoverTool(names=['moo'])
 #tappy = bokeh.models.TapTool()
 
 p = figure(
-    title="Audio/video of police brutality during George Floyd protests (CLICK FOR INFO)",
+    title="Audio/video of police brutality during protests (CLICK FOR INFO)",
     tools=[highlighty,'tap','reset'],
     x_axis_location=None, y_axis_location=None,
     tooltips=[
        ("City", "@name"), ("Recorded instances", "@count")
     ],
-    plot_width=1080,
-    plot_height=650,
+    plot_width=800,
+    plot_height=470,
     toolbar_location='right'
 )
 
@@ -157,11 +157,12 @@ p.add_layout(color_bar, 'below')
 
 master_header='''
 <div class='timestamp'>Last updated: %s </div><br/>
-Original Twitter thread: <a href='%s'>%s</a><br/>
-Compiled data powering this widget: <a href='%s'>%s</a>
+Original Twitter thread: <a href='%s' target=_blank>%s</a><br/>
+Compiled data powering this: <a href='%s' target=_blank>%s</a><br/><br/>
+Reach out to me <a class='handle' href='https://twitter.com/maaminian' target=_blank>@maaminian</a> on Twitter if you have any questions about this widget.
 '''%(dt_str,tweet_number_one,tweet_number_one,spreadsheet_link,spreadsheet_link)
 
-div = bokeh.models.Div(width=int(0.85*p.plot_width), width_policy="fixed", text=master_header)
+div = bokeh.models.Div(width=int(0.9*p.plot_width), width_policy="fixed", text=master_header)
 
 
 mooo = CustomJS(args=dict(dat=brutality_cds, page=div, header=master_header), code='''

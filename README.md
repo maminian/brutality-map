@@ -2,41 +2,38 @@
 
 Dashboard to find instances of (alleged) police brutality near you!
 
-# wow
+# What to do?
 
-Wow indeed.
+The main webpage is generated with brutality_vis.py, with 
+a few small tweaks to the html file generated to add a 
+custom css file and house the bokeh .js files locally.
+
+# prerequisites
+
+* bokeh
+* numpy
+* pandas
+* opencage (optional, if for some reason you need to re-fetch lat/lon for cities)
 
 # data sources
 
-===============
+* Original Twitter thread: https://twitter.com/greg_doucette/status/1266752393556918273
+* Compiled spreadsheet from that thread: https://docs.google.com/spreadsheets/d/1YmZeSxpz52qT-10tkCjWOwOGkQqle7Wd1P7ZM1wMW0E/edit#gid=0
+
+# Credit/reuse?
+
+Right now this is a quick personal project, so I only politely ask that you acknowledge 
+me (Manuchehr Aminian) if you use this or modify it in any simple way. 
+But the license attached to the repository says the rest (GNU GPLv3). 
+It would warm my heart if you told me that 
+this helped you in any way (you can find me at @maaminian on Twitter). 
+Don't hesitate to message/email me if you have questions.
+
+
+# Random notes
 
 US shapefiles can be found at:
 
 https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html
 
-I grabbed cb_2018_us_county_500k.zip (highest resolution, 11MB)
-https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_county_500k.zip
-
-lower res version:
-https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_county_20m.zip
-
-accessed 23 April 2020
-
-===================
-
-US State codes (FIPS Codes) via:
-
-https://www2.census.gov/programs-surveys/popest/geographies/2016/state-geocodes-v2016.xls
-
-accessed 23 April 2020 (well technically the 24th...)
-
-===================
-
-association of city to county (or counties...)
-https://www.census.gov/geographies/reference-files/time-series/geo/name-lookup-tables.2010.html
-
-====================
-
-shape files for US entities...
-
-https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html
+Lowest resolution available is good enough. I didn't attach these to the git repo.

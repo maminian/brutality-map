@@ -4,6 +4,11 @@ font.location{
   font-size : 24px;
 }
 
+/* the text enclosing @maaminian */
+.handle{
+  font-weight : bold;
+}
+
 h1.city{
   color : #000;
   font-size: 24px;
