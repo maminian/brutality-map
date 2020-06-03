@@ -1,0 +1,19 @@
+font.location{
+  color : #6600AA;
+  font-style : italic;
+  font-size : 24px;
+}
+
+h1.city{
+  color : #000;
+  font-size: 24px;
+  text-decoration: underline;
+}
+
+ol{
+  font-size: 14px;
+}
+
+li{
+  padding: 7px;
+}
