@@ -11,8 +11,14 @@ font.location{
 
 h1.city{
   color : #000;
-  font-size: 24px;
+  font-size: 18px;
   text-decoration: underline;
+  padding-bottom: 4px;
+}
+
+h1.about{
+  text-decoration: underline;
+  font-size: 18px;
   padding-bottom: 4px;
 }
 
@@ -29,4 +35,36 @@ div.timestamp{
   color: #111;
   /*text-align: center;*/
   padding-bottom: 8px;
+}
+
+div.avbox{
+  border : 2px solid #333;
+  border-radius: 5px;
+  background-color : #f6f2ff;
+  padding-left : 14px;
+  padding-right : 14px;
+  padding-top : 0px;
+  padding-bottom : 6px;
+  margin : 25px;
+  margin-right : 0px;
+  width : 416px;  /* bit less than python script for this box. */
+}
+
+div.aboutbox{
+  border : 2px solid #333;
+  border-radius: 5px;
+  background-color : #f0f0f0;
+  padding : 6px;
+  padding-left : 12px;
+}
+
+font.datasource{
+  font-size : 16px;
+  font-weight: bold;
+  padding-bottom: 6px;
+}
+
+font.warning{
+  font-weight:bold;
+  color:#f00;
 }

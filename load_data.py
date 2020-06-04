@@ -5,16 +5,21 @@ import os
 from mpl_toolkits.basemap import Basemap
 
 # clean tab-separated data of noted police issues on twitter
-#df_cases = pandas.read_csv('cases-2june2020.tsv', delimiter='\t', usecols=range(1,7))
-df_cases = pandas.read_csv('videos_spreadsheet.tsv', delimiter='\t', usecols=range(6), skiprows=4)
+df_cases = pandas.read_csv('videos_spreadsheet_3jun2020.tsv', delimiter='\t', skiprows=5, usecols=['City','State', 'Tweet URL', 'Description'])
+#df_cases = pandas.read_csv('videos_spreadsheet.tsv', delimiter='\t', skiprows=4)
 
 #######
 # clean up some of the cases.....
+
+# sorry Alaska, Hawaii, Puerto Rico :(
 excludes = ['ak', 'hi', 'pr', 'mp', 'vi', 'as', 'gu']
 
 mask = np.where(df_cases['City']!='Nationwide')
 
 df_cases = df_cases.iloc[mask]
+
+end_idx = 265 # manual; temporary while spreadsheet is non-rectangular.
+df_cases = df_cases.iloc[:end_idx]
 
 # TODO: replace city abbreviations, irregularities to help with lookups.
 
@@ -28,6 +33,10 @@ df_cases.replace('long beach', 'los angeles', inplace=True)
 df_cases.replace('hollywood', 'los angeles', inplace=True)
 df_cases.replace('altanta', 'atlanta', inplace=True)
 df_cases.replace('west philadelphia', 'philadelphia', inplace=True)
+df_cases.replace('cincinnatti', 'cincinnati', inplace=True)
+df_cases['State'].replace('cd', 'dc', inplace=True)
+df_cases['State'].replace('k', 'ky', inplace=True)
+df_cases['Description'].replace(np.nan, '', inplace=True)
 
 ###################
 #

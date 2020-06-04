@@ -2,7 +2,7 @@ import bokeh
 
 from bokeh.io import show
 from bokeh.models import LinearColorMapper
-from bokeh.palettes import Purples8 as palette
+from bokeh.palettes import Purples4 as palette
 from bokeh.plotting import figure
 
 from bokeh.models.callbacks import CustomJS
@@ -65,7 +65,7 @@ instance_list = np.array(instance_list)
 descriptions = np.array(descriptions) # why do i go from array to list to array to list...
 #
 
-color_mapper = LinearColorMapper(palette=palette, low=0, high=16)
+color_mapper = LinearColorMapper(palette=palette, low=0, high=20)
 
 data=dict(
     name=location_name,
@@ -89,16 +89,20 @@ data['circle_radii'] = [fudge*c**power for c in data['count']]
 highlighty = bokeh.models.HoverTool(names=['moo'])
 #tappy = bokeh.models.TapTool()
 
+# SUPPOSEDLY - "The United States is 2,800 miles wide when measured horizontally
+# from the eastern seaboard to the west coast (West Quoddy Head in the east to
+# Point Arena in West) and 1,582 miles from north to south."
+# So aim for an aspect ratio of around 0.565.
 p = figure(
-    title="Audio/video of police brutality during protests (CLICK FOR INFO)",
-    tools=[highlighty,'tap','reset'],
+    title="Audio/video of police brutality/misconduct during protests",
+    tools=['tap',highlighty],
     x_axis_location=None, y_axis_location=None,
     tooltips=[
-       ("City", "@name"), ("Recorded instances", "@count")
+       ("City", "@name"), ("Num. cases", "@count")
     ],
     plot_width=800,
-    plot_height=470,
-    toolbar_location='right'
+    plot_height=500,    #figure padding makes a tad bigger than 452 a better choice.
+    sizing_mode='scale_both'
 )
 
 # hide toolbar for now
@@ -117,7 +121,7 @@ state_cds = bokeh.models.ColumnDataSource({
     'state_xs': list( load_data.state_xs ),
     'state_ys': list( load_data.state_ys )
 })
-state_boundaries = bokeh.models.MultiLine(xs='state_xs', ys='state_ys', line_color='#333333', line_width=0.2)
+state_boundaries = bokeh.models.MultiLine(xs='state_xs', ys='state_ys', line_color='#111111', line_width=0.4)
 p.add_glyph(state_cds, state_boundaries)
 
 
@@ -128,15 +132,15 @@ thing = p.circle('x', 'y',
                 source=brutality_cds,
                 radius='circle_radii',
                 fill_color={'field': 'count', 'transform': color_mapper},
-                fill_alpha=1, selection_fill_alpha=1, nonselection_fill_alpha=1,
+                fill_alpha=0.7, selection_fill_alpha=0.7, nonselection_fill_alpha=0.7,
                 selection_fill_color={'field': 'count', 'transform': color_mapper},
                 nonselection_fill_color={'field': 'count', 'transform': color_mapper},
                 line_width=3,
                 line_color='#666666',
                 selection_line_color='#000000',
                 nonselection_line_color='#666666',
-                selection_line_alpha=1,
-                nonselection_line_alpha=1,
+                selection_line_alpha=0.7,
+                nonselection_line_alpha=0.7,
                 name='moo')
 
 color_bar = bokeh.models.ColorBar(color_mapper=color_mapper,
@@ -144,7 +148,11 @@ color_bar = bokeh.models.ColorBar(color_mapper=color_mapper,
                      location=(0,0),
                      orientation='horizontal')
 
+#color_bar.major_tick_in = 4 # ONLY WORKS WITH RANGE OF VALUES 0-20 AND 5 COLORS
+
 p.add_layout(color_bar, 'below')
+
+thing.selection_glyph
 
 ######
 #
@@ -155,17 +163,55 @@ p.add_layout(color_bar, 'below')
 # based on the thing clicked.
 #
 
-master_header='''
+jem_twitter="https://twitter.com/jasonemiller"
+
+about_text='''
 <div class='timestamp'>Last updated: %s </div><br/>
-Original Twitter thread: <a href='%s' target=_blank>%s</a><br/>
-Compiled data powering this: <a href='%s' target=_blank>%s</a><br/><br/>
-Reach out to me <a class='handle' href='https://twitter.com/maaminian' target=_blank>@maaminian</a> on Twitter if you have any questions about this widget.
-'''%(dt_str,tweet_number_one,tweet_number_one,spreadsheet_link,spreadsheet_link)
 
-div = bokeh.models.Div(width=int(0.9*p.plot_width), width_policy="fixed", text=master_header)
+<div class='aboutbox'>
+<h1 class='about'>About this visualization</h1>
+
+<p> This visualization documents cases of
+police brutality or misconduct during the nationwide protests
+following the murder of George Floyd by a Minneapolis police officer.
+This is not comprehensive &mdash; these are only a few hundred cases
+Tweeted by indivuals and compiled by Greg Doucette.
+
+<p> <font class='warning'>Warning:</font>
+the descriptions and associated video may contain offensive language
+or triggering content.
+
+<p> To use this: click on a location, and a list of incidents
+along with short descriptions and links to associated Tweets will
+update on the right panel. As of June 4, the map will scale with the
+size of the browser window.
+
+<ul>
+<li> <font class='datasource'>Original Twitter thread by Greg Doucette:</font> <a href='%s' target=_blank>%s</a><br/>
+<li> <font class='datasource'>Data in spreadsheet form curated by <a href='%s' target=_blank>@jasonemiller</a>:</font> <a href='%s' target=_blank>%s</a>
+<li> <font class='datasource'>To contact me:</font> Find my email at <a href="https://www.math.colostate.edu/~aminian/" target=_blank>my website</a> or
+message me on Twitter
+<a class='handle' href='https://twitter.com/maaminian' target=_blank>@maaminian</a>
+</ul>
+
+</div>
+'''%(dt_str,tweet_number_one,tweet_number_one,jem_twitter,spreadsheet_link,spreadsheet_link)
+
+# Fixed "about" section beneath
+div_about = bokeh.models.Div(width=800, height=300, text=about_text, sizing_mode='scale_both')
 
 
-mooo = CustomJS(args=dict(dat=brutality_cds, page=div, header=master_header), code='''
+# initial blank for tweets column.
+wrapl = "<div class='avbox'>"
+wrapr = "</div>"
+
+pre_header='''
+%s<h1 class='city'>Audio/video for <font class='location'>...</font> (select a location)%s
+'''%(wrapl,wrapr)
+
+div = bokeh.models.Div(width=500, width_policy="fixed", text=pre_header, sizing_mode='stretch_height')
+
+mooo = CustomJS(args=dict(dat=brutality_cds, page=div, wl=wrapl, wr=wrapr), code='''
 var idx = dat.selected.indices[0];
 var name = dat["data"]["name"][idx];
 var links = dat["data"]["media"][idx];
@@ -182,13 +228,16 @@ for (var i=0; i<nlinks; i++){
 }
 myul += "</ol>\\n"
 
-page.text = header+links_header+myul;
+page.text = wl + links_header+myul + wr;
 '''
 )
 
 # Create HTML page with map on the left,
 # dynamic list and links on the right.
-layout=bokeh.layouts.column(p,div)
+#layout=bokeh.layouts.column(p,div)
+#layout=bokeh.layouts.row(p,div)
+#layout = bokeh.layouts.gridplot([[p,div],[div_about,None]])
+layout = bokeh.layouts.row(bokeh.layouts.column(p,div_about, sizing_mode='scale_both'), div)
 
 taptool = p.select(type=bokeh.models.TapTool)
 taptool.callback=mooo
