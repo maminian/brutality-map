@@ -62,7 +62,7 @@ location_htmls = []
 for (location, df_sub) in grouper:
     location_name.append( ', '.join(location) )
 
-    instance_count.append( df_sub.shape[0] )
+#    instance_count.append( df_sub.shape[0] )
 #    descriptions.append( list(df_sub['Doucette Text'].values) )
     
     grouper2 = df_sub.groupby('incident')
@@ -72,6 +72,7 @@ for (location, df_sub) in grouper:
     #
 #    location_htmls.append( ' '.join(incident_htmls) )
     location_htmls.append( incident_htmls )
+    instance_count.append( len(incident_htmls) )
 #
 
 #descriptions = np.array(descriptions) # why do i go from array to list to array to list...
@@ -256,7 +257,6 @@ for (var i=0; i<nlinks; i++){
     myul += html[i] + " ";
 }
 
-myul += html;
 myul += "</ol>\\n"
 
 page.text = wl + links_header+myul + wr;

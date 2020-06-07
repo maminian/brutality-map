@@ -24,21 +24,27 @@ h1.about{
 
 ol{
   font-size: 14px;
-  padding-left: 10px;
-  margin-left: 10px;
+  padding-left: 12px;
+  margin-left: 12px;
 }
 
 ol.incident_obs{
   list-style-type: lower-alpha;
 }
 
-li.row_entry{
-  padding-bottom: 7px;
+li.incident:before{
+  font-weight: bold;
+}
+/* alternating background? */
+li.incident:nth-child(even){
+  background: #f6f2fd;
+}
+li.incident:nth-child(odd){
+  background: #e8e0ff;
 }
 
-/* alternating background? */
-li.row_entry:nth-child(even){
-  background-color: #e8e0ff;
+li.row_entry{
+  padding-bottom: 7px;
 }
 
 div.timestamp{
