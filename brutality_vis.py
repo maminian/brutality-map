@@ -29,12 +29,12 @@ bokeh.plotting.output_file('index.html', title='Police Brutality Map')
 ###
 import load_data
 
-# my modification - if sample data not downloaded, do it.
-try:
-    from bokeh.sampledata.us_counties import data as counties
-except:
-    raise Exception('could not import data sets; run bokeh.sampledata.download() then re-run script.')
-#
+## my modification - if sample data not downloaded, do it.
+#try:
+#    from bokeh.sampledata.us_counties import data as counties
+#except:
+#    raise Exception('could not import data sets; run bokeh.sampledata.download() then re-run script.')
+##
 
 palette = list(reversed(palette))
 
