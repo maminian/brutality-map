@@ -70,7 +70,8 @@ for (location, df_sub) in grouper:
     for g2 in grouper2:
         incident_htmls.append( utils.incident_html_formatter(g2) )
     #
-    location_htmls.append( ' '.join(incident_htmls) )
+#    location_htmls.append( ' '.join(incident_htmls) )
+    location_htmls.append( incident_htmls )
 #
 
 #descriptions = np.array(descriptions) # why do i go from array to list to array to list...
@@ -250,6 +251,11 @@ var nlinks = html.length;
 var links_header="<h1 class=\'city\'>Audio/video for <font class=\'location\'>"+name+"</font> ("+ nlinks +" total)</h1>";
 
 var myul="<ol class=\'media_list\'>";
+
+for (var i=0; i<nlinks; i++){
+    myul += html[i] + " ";
+}
+
 myul += html;
 myul += "</ol>\\n"
 
