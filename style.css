@@ -26,8 +26,17 @@ ol{
   font-size: 14px;
 }
 
-li{
+ol.incident_obs{
+  list-style-type: lower-alpha;
+}
+
+li.row_entry{
   padding-bottom: 7px;
+}
+
+/* alternating background? */
+li.row_entry:nth-child(even){
+  background-color: #f2e9ff;
 }
 
 div.timestamp{

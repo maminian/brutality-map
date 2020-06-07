@@ -2,11 +2,11 @@ import pandas
 import numpy as np
 import os
 
+# TODO: switch from Basemap to cartopy
 from mpl_toolkits.basemap import Basemap
 
-# clean tab-separated data of noted police issues on twitter
-df_cases = pandas.read_csv('videos_spreadsheet_3jun2020.tsv', delimiter='\t', skiprows=5, usecols=['City','State', 'Tweet URL', 'Description'])
-#df_cases = pandas.read_csv('videos_spreadsheet.tsv', delimiter='\t', skiprows=4)
+# load data
+df_cases = pandas.read_excel('GeorgeFloyd Protest - police brutality videos on Twitter.xlsx', skiprows=6)
 
 #######
 # clean up some of the cases.....
@@ -18,7 +18,7 @@ mask = np.where(df_cases['City']!='Nationwide')
 
 df_cases = df_cases.iloc[mask]
 
-end_idx = 265 # manual; temporary while spreadsheet is non-rectangular.
+end_idx = 473 # manual; temporary while spreadsheet is non-rectangular.
 df_cases = df_cases.iloc[:end_idx]
 
 # TODO: replace city abbreviations, irregularities to help with lookups.
@@ -34,9 +34,27 @@ df_cases.replace('hollywood', 'los angeles', inplace=True)
 df_cases.replace('altanta', 'atlanta', inplace=True)
 df_cases.replace('west philadelphia', 'philadelphia', inplace=True)
 df_cases.replace('cincinnatti', 'cincinnati', inplace=True)
+df_cases.replace('cincinatti','cincinnati',inplace=True)
+df_cases['City'].replace(':as vegas', 'las vegas', inplace=True)
+df_cases['City'].replace('fredricksburg', 'fredericksburg', inplace=True)
+
 df_cases['State'].replace('cd', 'dc', inplace=True)
 df_cases['State'].replace('k', 'ky', inplace=True)
-df_cases['Description'].replace(np.nan, '', inplace=True)
+df_cases['Doucette Text'].replace(np.nan, '[no description]', inplace=True)
+
+# group by incident
+def fetch_incident(ind):
+    gdn = df_cases.loc[ind]['TGD Number']
+    if not np.isnan(gdn):
+        candidate = str(gdn).split('.')[0]
+    else:
+        # seems to work universally; but can catch any quirk cases as "other" for now.
+        candidate = 'other'
+    #
+    return candidate
+#
+
+grouper = df_cases.groupby(fetch_incident)
 
 ###################
 #
