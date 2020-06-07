@@ -9,7 +9,9 @@ from bokeh.models.callbacks import CustomJS
 
 import numpy as np
 
+###
 
+import utils
 ####
 # resource links
 tweet_number_one = 'https://twitter.com/greg_doucette/status/1266752393556918273'
@@ -48,21 +50,30 @@ excludes = load_data.excludes
 #
 
 df = load_data.df_cases
+
 grouper = df.groupby(['City', 'State'])
 
 descriptions=[]
 
 location_name = []
 instance_count = []
-instance_list = []
+
+location_htmls = []
 for (location, df_sub) in grouper:
     location_name.append( ', '.join(location) )
-    instance_list.append( list( df_sub['Tweet URL'].values ) )
+
     instance_count.append( df_sub.shape[0] )
-    descriptions.append( list(df_sub['Description'].values) )
+#    descriptions.append( list(df_sub['Doucette Text'].values) )
+    
+    grouper2 = df_sub.groupby('incident')
+    incident_htmls = []
+    for g2 in grouper2:
+        incident_htmls.append( utils.incident_html_formatter(g2) )
+    #
+    location_htmls.append( ' '.join(incident_htmls) )
 #
-instance_list = np.array(instance_list)
-descriptions = np.array(descriptions) # why do i go from array to list to array to list...
+
+#descriptions = np.array(descriptions) # why do i go from array to list to array to list...
 #
 
 color_mapper = LinearColorMapper(palette=palette, low=0, high=20)
@@ -70,8 +81,8 @@ color_mapper = LinearColorMapper(palette=palette, low=0, high=20)
 data=dict(
     name=location_name,
     count=instance_count,
-    media=instance_list,
-    descriptions=descriptions
+#    descriptions=descriptions,
+    html=location_htmls
 )
 
 xy = np.array([load_data.latlon_lookup.get(n, (np.nan,np.nan)) for n in data['name']])
@@ -171,21 +182,6 @@ about_text='''
 <div class='aboutbox'>
 <h1 class='about'>About this visualization</h1>
 
-<p> This visualization documents cases of
-police brutality or misconduct during the nationwide protests
-following the murder of George Floyd by a Minneapolis police officer.
-This is not comprehensive &mdash; these are only a few hundred cases
-Tweeted by indivuals and compiled by Greg Doucette.
-
-<p> <font class='warning'>Warning:</font>
-the descriptions and associated video may contain offensive language
-or triggering content.
-
-<p> To use this: click on a location, and a list of incidents
-along with short descriptions and links to associated Tweets will
-update on the right panel. As of June 4, the map will scale with the
-size of the browser window.
-
 <ul>
 <li> <font class='datasource'>Original Twitter thread by Greg Doucette:</font> <a href='%s' target=_blank>%s</a><br/>
 <li> <font class='datasource'>Data in spreadsheet form curated by <a href='%s' target=_blank>@jasonemiller</a>:</font> <a href='%s' target=_blank>%s</a>
@@ -193,6 +189,40 @@ size of the browser window.
 message me on Twitter
 <a class='handle' href='https://twitter.com/maaminian' target=_blank>@maaminian</a>
 </ul>
+
+<p> This visualization documents cases of
+police brutality or misconduct during the nationwide protests
+following the murder of George Floyd by a Minneapolis police officer.
+This is not comprehensive &mdash; these are only a few hundred cases
+Tweeted by indivuals and primarily compiled by Greg Doucette.
+
+<p> <font class='warning'>Warning:</font>
+the descriptions and associated video may contain offensive language
+or triggering content.
+
+<p> To use this: click on a location, and a list of incidents
+along with short descriptions and links to associated Tweets will
+update on the right panel. 
+
+<h2>Update log</h2>
+<ul>
+  <li> June 7: 
+    <ul>
+      <li> Data is up to date as of the timestamp shown above.
+      <li> Data is now organized by the actual incident
+        number &mdash; if there are multiple sources for the same event, 
+        they'll now show up in a single sub-list and not accumulate
+      <li> Links to Youtube have been included if they exist in the spreadsheet.
+      <li> Known typos in cities and associated problems have been fixed.
+    </ul>
+  <li> June 4: 
+    <ul>
+      <li> Data updated. 
+      <li> The map will scale with the size of the browser window. 
+      <li> Overall Layout and CSS has been updated
+    </ul>
+</uul>
+
 
 </div>
 '''%(dt_str,tweet_number_one,tweet_number_one,jem_twitter,spreadsheet_link,spreadsheet_link)
@@ -214,18 +244,13 @@ div = bokeh.models.Div(width=500, width_policy="fixed", text=pre_header, sizing_
 mooo = CustomJS(args=dict(dat=brutality_cds, page=div, wl=wrapl, wr=wrapr), code='''
 var idx = dat.selected.indices[0];
 var name = dat["data"]["name"][idx];
-var links = dat["data"]["media"][idx];
-var descrs = dat["data"]["descriptions"][idx];
-var nlinks = links.length;
+var html = dat["data"]["html"][idx];
+var nlinks = html.length;
 
 var links_header="<h1 class=\'city\'>Audio/video for <font class=\'location\'>"+name+"</font> ("+ nlinks +" total)</h1>";
 
 var myul="<ol class=\'media_list\'>";
-for (var i=0; i<nlinks; i++){
-    var linky=links[i];
-    myul += "<li><font class=\'brutality_descr\'>" + descrs[i] + "</font><br/>";
-    myul += "<a href=\'"+linky+"\' target=_blank>" + linky + "</a>\\n";
-}
+myul += html;
 myul += "</ol>\\n"
 
 page.text = wl + links_header+myul + wr;
@@ -237,7 +262,10 @@ page.text = wl + links_header+myul + wr;
 #layout=bokeh.layouts.column(p,div)
 #layout=bokeh.layouts.row(p,div)
 #layout = bokeh.layouts.gridplot([[p,div],[div_about,None]])
-layout = bokeh.layouts.row(bokeh.layouts.column(p,div_about, sizing_mode='scale_both'), div)
+layout = bokeh.layouts.row(
+    bokeh.layouts.column(p,div_about, sizing_mode='scale_both'), 
+    div
+)
 
 taptool = p.select(type=bokeh.models.TapTool)
 taptool.callback=mooo

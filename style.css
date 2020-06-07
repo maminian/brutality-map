@@ -24,6 +24,8 @@ h1.about{
 
 ol{
   font-size: 14px;
+  padding-left: 10px;
+  margin-left: 10px;
 }
 
 ol.incident_obs{
@@ -36,7 +38,7 @@ li.row_entry{
 
 /* alternating background? */
 li.row_entry:nth-child(even){
-  background-color: #f2e9ff;
+  background-color: #e8e0ff;
 }
 
 div.timestamp{

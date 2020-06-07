@@ -56,6 +56,17 @@ def fetch_incident(ind):
 
 grouper = df_cases.groupby(fetch_incident)
 
+# just remake manually, dataframe index being a pain.
+
+#incidents = np.tile('', (df_cases.shape[0],))
+#df_cases['incident'] = incidents
+#for g,df_s in grouper:
+#    df_cases.loc[df_s.index]['incident'] = g
+##
+
+incidents = [str(gdn).split('.')[0] if not np.isnan(gdn) else 'other' for gdn in df_cases['TGD Number'].values]
+df_cases['incident'] = incidents
+
 ###################
 #
 # get latlon lookup table if it exists, and make a dictionary.
