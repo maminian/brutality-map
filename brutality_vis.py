@@ -179,7 +179,7 @@ thing.selection_glyph
 jem_twitter="https://twitter.com/jasonemiller"
 
 about_text='''
-<div class='timestamp'>Last updated: %s </div><br/>
+<div class='timestamp'>Documentation since <b>May 29.</b> Last updated: <b>%s</b> </div><br/>
 
 <div class='aboutbox'>
 <h1 class='about'>About this visualization</h1>
@@ -208,6 +208,14 @@ update on the right panel.
 
 <h2>Update log</h2>
 <ul>
+  <li> June 14:
+    <ul>
+      <li> Data is up to date as of the timestamp shown above. There are roughly 
+        <b>503</b> unique incidents documented here.
+      <li> Note indicating the rough starting date of collection, measured by 
+        the date of Greg Doucette's first numbered tweet is now indicated next 
+        to the "Last Updated" date. (That date is May 29.)
+    </ul>
   <li> June 7: 
     <ul>
       <li> Data is up to date as of the timestamp shown above.

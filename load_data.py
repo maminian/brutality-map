@@ -11,15 +11,23 @@ df_cases = pandas.read_excel('GeorgeFloyd Protest - police brutality videos on T
 #######
 # clean up some of the cases.....
 
-# sorry Alaska, Hawaii, Puerto Rico :(
-excludes = ['ak', 'hi', 'pr', 'mp', 'vi', 'as', 'gu']
+# sorry Alaska, Hawaii, Puerto Rico, Canada :(
+# Still need to get a better mapping tool to include them.
+# excluding those two is bad!
+excludes = ['ak', 'hi', 'pr', 'mp', 'vi', 'as', 'gu', 'quebec canada', 'national']
 
 mask = np.where(df_cases['City']!='Nationwide')
 
 df_cases = df_cases.iloc[mask]
 
-end_idx = 473 # manual; temporary while spreadsheet is non-rectangular.
+end_idx = 725 # manual; temporary while spreadsheet is non-rectangular.
 df_cases = df_cases.iloc[:end_idx]
+
+# string "NA" and similar should be replaced by np.nan to support later code.
+df_cases['TGD Number'].replace('NA', np.nan, inplace=True)
+df_cases['TGD Number'].replace('NA.1', np.nan, inplace=True)
+df_cases['TGD Number'].replace('NA2', np.nan, inplace=True)
+
 
 # TODO: replace city abbreviations, irregularities to help with lookups.
 
@@ -37,6 +45,10 @@ df_cases.replace('cincinnatti', 'cincinnati', inplace=True)
 df_cases.replace('cincinatti','cincinnati',inplace=True)
 df_cases['City'].replace(':as vegas', 'las vegas', inplace=True)
 df_cases['City'].replace('fredricksburg', 'fredericksburg', inplace=True)
+df_cases['City'].replace('atlanda', 'atlanta', inplace=True)
+df_cases['City'].replace('philaeslphia', 'philadelphia', inplace=True)
+df_cases['City'].replace('shanandoah county', 'shenandoah county', inplace=True)
+
 
 df_cases['State'].replace('cd', 'dc', inplace=True)
 df_cases['State'].replace('k', 'ky', inplace=True)
@@ -78,6 +90,19 @@ if os.path.exists('latlon_lookup.tsv'):
     latlon_lookup = {', '.join((c,s)) : (x,y) for (c,s,x,y) in df.values}
 else:
     latlon_lookup = {}
+
+##################
+#
+# Replace missing/lack of youtube  links with np.nan so that 
+# the HTML generator (correctly) ignores them.
+#
+has_youtubes = np.zeros(df_cases.shape[0], dtype=bool)
+for j,v in enumerate(df_cases['YouTube'].values):
+    if isinstance(v,str):
+        if 'http' in v:
+            has_youtubes[j] = True
+#
+df_cases['YouTube'][np.logical_not(has_youtubes)] = np.nan
 
 ######################
 #
