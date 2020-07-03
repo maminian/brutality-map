@@ -6,7 +6,17 @@ import os
 from mpl_toolkits.basemap import Basemap
 
 # load data
+df_orig = pandas.read_excel('GeorgeFloyd Protest - police brutality videos on Twitter.xlsx', skiprows=6)
 df_cases = pandas.read_excel('GeorgeFloyd Protest - police brutality videos on Twitter.xlsx', skiprows=6)
+
+
+end_idx = 1159 # manual; temporary while spreadsheet is non-rectangular.
+df_cases = df_cases.iloc[:end_idx]
+
+# TODO: replace city abbreviations, irregularities to help with lookups.
+
+df_cases['City'] = df_cases['City'].str.lower()
+df_cases['State'] = df_cases['State'].str.lower()
 
 #######
 # clean up some of the cases.....
@@ -14,14 +24,17 @@ df_cases = pandas.read_excel('GeorgeFloyd Protest - police brutality videos on T
 # sorry Alaska, Hawaii, Puerto Rico, Canada :(
 # Still need to get a better mapping tool to include them.
 # excluding those two is bad!
-excludes = ['ak', 'hi', 'pr', 'mp', 'vi', 'as', 'gu', 'quebec canada', 'national']
+excludes = ['uk', 'ak', 'hi', 'pr', 'mp', 'vi', 'as', 'gu', 'quebec canada', 'national']
 
-mask = np.where(df_cases['City']!='Nationwide')
+for e in excludes:
+    mask = np.where(df_cases['State'].values!=e)[0]
+    df_cases = df_cases.iloc[mask]
+#
+mask = np.where(df_cases['City'].values!='Nationwide')
 
 df_cases = df_cases.iloc[mask]
 
-end_idx = 725 # manual; temporary while spreadsheet is non-rectangular.
-df_cases = df_cases.iloc[:end_idx]
+
 
 # string "NA" and similar should be replaced by np.nan to support later code.
 df_cases['TGD Number'].replace('NA', np.nan, inplace=True)
@@ -29,10 +42,11 @@ df_cases['TGD Number'].replace('NA.1', np.nan, inplace=True)
 df_cases['TGD Number'].replace('NA2', np.nan, inplace=True)
 
 
-# TODO: replace city abbreviations, irregularities to help with lookups.
 
-df_cases['City'] = df_cases['City'].str.lower()
-df_cases['State'] = df_cases['State'].str.lower()
+
+# strip any leading/trailing white space
+df_cases['City'] = df_cases['City'].apply(lambda x: x.strip() if isinstance(x, str) else x)
+df_cases['State'] = df_cases['State'].apply(lambda x: x.strip() if isinstance(x, str) else x)
 
 # a bunch of not-inline-replacements
 df_cases.replace('nyc', 'new york city', inplace=True)
@@ -43,15 +57,35 @@ df_cases.replace('altanta', 'atlanta', inplace=True)
 df_cases.replace('west philadelphia', 'philadelphia', inplace=True)
 df_cases.replace('cincinnatti', 'cincinnati', inplace=True)
 df_cases.replace('cincinatti','cincinnati',inplace=True)
-df_cases['City'].replace(':as vegas', 'las vegas', inplace=True)
-df_cases['City'].replace('fredricksburg', 'fredericksburg', inplace=True)
-df_cases['City'].replace('atlanda', 'atlanta', inplace=True)
-df_cases['City'].replace('philaeslphia', 'philadelphia', inplace=True)
-df_cases['City'].replace('shanandoah county', 'shenandoah county', inplace=True)
+df_cases.replace(':as vegas', 'las vegas', inplace=True)
+df_cases.replace('fredricksburg', 'fredericksburg', inplace=True)
+df_cases.replace('atlanda', 'atlanta', inplace=True)
+df_cases.replace('philaeslphia', 'philadelphia', inplace=True)
+df_cases.replace('shanandoah county', 'shenandoah county', inplace=True)
+df_cases.replace('albequrque', 'albuquerque', inplace=True)
+df_cases.replace('cinciatti', 'cincinnati', inplace=True)
+df_cases.replace('cinciatti', 'cincinnati', inplace=True)
+df_cases.replace('for lauderdale', 'fort lauderdale', inplace=True)
+df_cases.replace('for wayne', 'fort wayne', inplace=True)
+df_cases.replace('minneaplois', 'minneapolis', inplace=True)
 
 
-df_cases['State'].replace('cd', 'dc', inplace=True)
-df_cases['State'].replace('k', 'ky', inplace=True)
+df_cases.replace('fairfax county', 'fairfax', inplace=True)
+
+
+# incorrect states...
+idx = (df_cases['City'].values=='charlotte')
+df_cases.iloc[idx] = df_cases.iloc[idx].replace('nv','nc')
+df_cases.iloc[idx] = df_cases.iloc[idx].replace('ca','nc')
+
+idx = (df_cases['City'].values=='albuquerque')
+df_cases.iloc[idx] = df_cases.iloc[idx].replace('nw','nm', inplace=True)
+
+
+
+
+df_cases.replace('cd', 'dc', inplace=True)
+df_cases.replace('k', 'ky', inplace=True)
 df_cases['Doucette Text'].replace(np.nan, '[no description]', inplace=True)
 
 # group by incident

@@ -91,7 +91,7 @@ xy = np.array([load_data.latlon_lookup.get(n, (np.nan,np.nan)) for n in data['na
 data['y'] = xy[:,0]
 data['x'] = xy[:,1]
 fudge = 0.5
-power = 0.3
+power = 0.25
 data['circle_radii'] = [fudge*c**power for c in data['count']]
 
 
@@ -108,7 +108,7 @@ highlighty = bokeh.models.HoverTool(names=['moo'])
 # So aim for an aspect ratio of around 0.565.
 p = figure(
     title="Audio/video of police brutality/misconduct during protests",
-    tools=['tap',highlighty],
+    tools=['tap','wheel_zoom','pan',highlighty],
     x_axis_location=None, y_axis_location=None,
     tooltips=[
        ("City", "@name"), ("Num. cases", "@count")
@@ -195,8 +195,8 @@ message me on Twitter
 <p> This visualization documents cases of
 police brutality or misconduct during the nationwide protests
 following the murder of George Floyd by a Minneapolis police officer.
-This is not comprehensive &mdash; these are only a few hundred cases
-Tweeted by indivuals and primarily compiled by Greg Doucette.
+This is not comprehensive &mdash; these are only the cases
+Tweeted by individuals and broadcasted by Greg Doucette.
 
 <p> <font class='warning'>Warning:</font>
 the descriptions and associated video may contain offensive language
@@ -208,6 +208,15 @@ update on the right panel.
 
 <h2>Update log</h2>
 <ul>
+  <li> July 3:
+    <ul>
+      <li> Data is up to date as of mid-day on July 3. We're up to <b>687</b> unique cases 
+        in the 48 states, plus or minus a few 
+        accounting for bookkeeping errors, side notes, etc. Things are getting 
+        very busy on the map. I'll likely enable a zoom tool in a future update.
+      <li> Tweaked the sizing of circles for slight improvement in visibility
+      <li> Miscellaneous fixes for typos, bookkeeping errors
+    </ul>
   <li> June 14:
     <ul>
       <li> Data is up to date as of the timestamp shown above. There are roughly 

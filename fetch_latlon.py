@@ -36,16 +36,23 @@ def fetch(entries, verbosity=1):
         except:
             results=[]
         #
-        ri = 0
-        hit = results[ri]
-        while hit['components']['country'].lower() not in ['united states of america', 'usa', 'us']:
-            ri+=1
-            hit=results[ri]
-        #
+#        ri = 0
+#        hit = results[ri]
+#        while hit['components']['country'].lower() not in ['united states of america', 'usa', 'us']:
+
         if len(results)==0:
             print("Warning: failed to find data for entry %s, using NaN coordinates."%query)
             latlon = np.array([np.nan,np.nan])
         else:
+            for ri,result in enumerate(results):
+                if result['components']['country'].lower() not in ['united states of america', 'usa', 'us']:
+                    continue
+                hit=result
+                break
+            #
+            if hit['components']['country'].lower() not in ['united states of america', 'usa', 'us']:
+                print('entry not in the US: %s'%str(hit['components']['country'].lower()))
+                continue
 #            ne = hit['bounds']['northeast']
 #            sw = hit['bounds']['southwest']
 #            latlon = np.mean([[ne['lat'], ne['lng']],[sw['lat'],sw['lng']]], axis=0)
@@ -75,13 +82,29 @@ def create_lookup(entries,fname='latlon_lookup.tsv', verbosity=1):
     #
     import pandas
     import numpy as np
-    queries = [', '.join(cs) for cs in entries]
+    queries = []
+    for cs in entries:
+        if not all([isinstance(csi,str) for csi in cs]):
+            continue
+        queries.append([', '.join(cs)])
+    #
+#    queries = [', '.join(cs) for cs in entries]
     unique_queries = np.unique(queries)
 
     results = fetch(unique_queries, verbosity=verbosity)
 
     # split city and state up again...
-    citystates = np.array([[e.strip() for e in uq.split(',')] for uq in unique_queries])
+#    citystates = np.array([[e.strip() for e in uq.split(',')] for uq in unique_queries])
+    citystates = []
+    for j,uq in enumerate(unique_queries):
+        mi = []
+        if not isinstance(uq,str):
+            print('index %i'%j, str(uq))
+        for e in uq.split(','):
+            mi.append(e.strip())
+        citystates.append(mi)
+    #
+    citystates = np.array(citystates)
 
     latlon_data = np.hstack([citystates, results])
 

@@ -79,7 +79,7 @@ def build_url_html(df_row):
         entry = df_row[column]
         if isinstance(entry, str):
             clname = kw+'_link'
-            links.append( "<a href='%s' class='%s'>(%s)</a>\n"%(entry, clname, kw) )
+            links.append( "<a href='%s' class='%s' target='_blank'>(%s)</a>\n"%(entry, clname, kw) )
     #
     out_html = ' '.join(links)
     return out_html
